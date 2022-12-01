@@ -233,3 +233,54 @@ public class Person
 dotnet run -c Release -f net6.0
 dotnet run -c Release -f net7.0
 ```
+
+# Linq
+
+```
+dotnet new console -n Linq
+cd Linq
+
+; add net6.0 to target frameworks
+
+dotnet add package BenchmarkDotNet
+```
+
+```
+using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Running;
+
+BenchmarkRunner.Run<LinqPerformance>();
+
+[SimpleJob(RuntimeMoniker.Net60)]
+[SimpleJob(RuntimeMoniker.Net70)]
+[MemoryDiagnoser(false)]
+public class LinqPerformance
+{
+    private readonly IEnumerable<int> _itemsArray = Enumerable.Range(1, 100).ToArray();
+    private readonly IEnumerable<int> _itemsList = Enumerable.Range(1, 100).ToList();
+
+    [Benchmark]
+    public int MaxArray() => _itemsArray.Max();
+    [Benchmark]
+    public int MinArray() => _itemsArray.Min();
+    [Benchmark]
+    public int SumArray() => _itemsArray.Sum();
+    [Benchmark]
+    public double AverageArray() => _itemsArray.Average();
+
+    [Benchmark]
+    public int MaxList() => _itemsList.Max();
+    [Benchmark]
+    public int MinList() => _itemsList.Min();
+    [Benchmark]
+    public int SumList() => _itemsList.Sum();
+    [Benchmark]
+    public double AverageList() => _itemsList.Average();
+}
+```
+
+```
+dotnet run -c Release -f net6.0
+dotnet run -c Release -f net7.0
+```
