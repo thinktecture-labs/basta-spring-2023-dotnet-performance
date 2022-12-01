@@ -157,6 +157,8 @@ using BenchmarkDotNet.Running;
 
 BenchmarkRunner.Run<ReflectionPerformance>();
 
+[SimpleJob(RuntimeMoniker.Net60)]
+[SimpleJob(RuntimeMoniker.Net70)]
 [MemoryDiagnoser(false)]
 public class ReflectionPerformance
 {
