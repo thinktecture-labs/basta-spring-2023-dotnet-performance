@@ -14,19 +14,25 @@ public class LinqPerformance
 
     [Benchmark]
     public int MaxArray() => _itemsArray.Max();
+
     [Benchmark]
     public int MinArray() => _itemsArray.Min();
+
     [Benchmark]
     public int SumArray() => _itemsArray.Sum();
+
     [Benchmark]
     public double AverageArray() => _itemsArray.Average();
 
     [Benchmark]
     public int MaxList() => _itemsList.Max();
+
     [Benchmark]
     public int MinList() => _itemsList.Min();
+
     [Benchmark]
     public int SumList() => _itemsList.Sum();
+
     [Benchmark]
     public double AverageList() => _itemsList.Average();
 }
