@@ -5,29 +5,27 @@ using BenchmarkDotNet.Running;
 
 BenchmarkRunner.Run<ReflectionPerformance>();
 
+public class Person
+{
+    private int _age;
+    internal Person(int age) => _age = age;
+    private int GetAge() => _age;
+    private void SetAge(int age) => _age = age;
+}
+
 [SimpleJob(RuntimeMoniker.Net60)]
 [SimpleJob(RuntimeMoniker.Net70)]
 [MemoryDiagnoser(false)]
 public class ReflectionPerformance
 {
     private readonly Person _person = new(10);
-    private readonly MethodInfo _getAgeMethod = typeof(Person).GetMethod("GetAge", BindingFlags.NonPublic | BindingFlags.Instance)!;
-    private readonly MethodInfo _setAgeMethod = typeof(Person).GetMethod("SetAge", BindingFlags.NonPublic | BindingFlags.Instance)!;
-    private readonly object[] _params = new object[] { 43, };
-    private readonly ConstructorInfo _ctor = typeof(Person).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, new [] { typeof(int), })!;
 
     [Benchmark]
     public int GetAge()
     {
         return (int) typeof(Person)
             .GetMethod("GetAge", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .Invoke(_person, Array.Empty<object>())!;
-    }
-
-    [Benchmark]
-    public int GetAgeCached()
-    {
-        return (int) _getAgeMethod.Invoke(_person, Array.Empty<object>())!;
+            .Invoke(_person, null)!;
     }
 
     [Benchmark]
@@ -35,14 +33,25 @@ public class ReflectionPerformance
     {
         typeof(Person)
             .GetMethod("SetAge", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .Invoke(_person, new object[] { 43, });
+            .Invoke(_person, new object[] { 44, });
+    }
+
+    private readonly MethodInfo _getAgeMethod = typeof(Person).GetMethod("GetAge", BindingFlags.NonPublic | BindingFlags.Instance)!;
+    private readonly MethodInfo _setAgeMethod = typeof(Person).GetMethod("SetAge", BindingFlags.NonPublic | BindingFlags.Instance)!;
+
+    [Benchmark]
+    public int GetAgeCached()
+    {
+        return (int) _getAgeMethod.Invoke(_person, null)!;
     }
 
     [Benchmark]
     public void SetAgeCached()
     {
-        _setAgeMethod.Invoke(_person, new object[] { 43, });
+        _setAgeMethod.Invoke(_person, new object[] { 44, });
     }
+
+    private readonly object[] _params = new object[] { 44, };
 
     [Benchmark]
     public void SetAgeCachedParams()
@@ -56,6 +65,8 @@ public class ReflectionPerformance
         var person = typeof(Person).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, new [] { typeof(int), })!.Invoke(new object[] { 43, });
     }
 
+    private readonly ConstructorInfo _ctor = typeof(Person).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, new [] { typeof(int), })!;
+
     [Benchmark]
     public void CtorCached()
     {
@@ -67,13 +78,4 @@ public class ReflectionPerformance
     {
         var person = _ctor.Invoke(_params);
     }
-
-}
-
-public class Person
-{
-    private int _age;
-    internal Person(int age) => _age = age;
-    private int GetAge() => _age;
-    private void SetAge(int age) => _age = age;
 }
